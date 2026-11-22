@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="45%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <!-- Whole horizontal golden key centered around y=30 -->
+    <g id="fullKey">
+      <path fill-rule="evenodd" fill="url(#gold)"
+            d="M 18,18
+               A 11,11 0 1,0 18,40
+               A 11,11 0 0,0 28.4,32.8
+               L 41,32.8
+               L 41,39.5
+               L 45.5,39.5
+               L 45.5,35.5
+               L 49,35.5
+               L 49,41.5
+               L 54,41.5
+               L 54,32.8
+               L 55.5,32.8
+               C 57,32.8 58,31.6 58,30
+               L 58,28
+               C 58,26.4 57,25.2 55.5,25.2
+               L 28.4,25.2
+               A 11,11 0 0,0 18,18 Z
+               M 17.5,24
+               A 5,5 0 1,1 17.5,34
+               A 5,5 0 1,1 17.5,24 Z"/>
+    </g>
+    <!-- 3 diagonal shard clip paths -->
+    <clipPath id="shard1">
+      <polygon points="0,0 32,0 24,64 0,64"/>
+    </clipPath>
+    <clipPath id="shard2">
+      <polygon points="34.5,0 46.5,0 38.5,64 26.5,64"/>
+    </clipPath>
+    <clipPath id="shard3">
+      <polygon points="49,0 64,0 64,64 41,64"/>
+    </clipPath>
+  </defs>
+
+  <!-- Rounded dark badge -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#bg)" stroke="#f59e0b" stroke-opacity="0.4" stroke-width="1.5"/>
+
+  <!-- Golden key rotated slightly and split into 3 separated shards -->
+  <g transform="rotate(-35 32 32)">
+    <g transform="translate(-1.8, -1.2)" clip-path="url(#shard1)">
+      <use href="#fullKey"/>
+    </g>
+    <g transform="translate(0, 0.4)" clip-path="url(#shard2)">
+      <use href="#fullKey"/>
+    </g>
+    <g transform="translate(2.0, 1.8)" clip-path="url(#shard3)">
+      <use href="#fullKey"/>
+    </g>
+  </g>
+</svg>

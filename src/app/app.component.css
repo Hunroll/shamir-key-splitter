@@ -1,0 +1,12 @@
+/* Apply error styles using modern :user-invalid and touched fallback */
+textarea.shares-textarea:user-invalid,
+textarea.shares-textarea.user-invalid-fallback {
+  border-color: #dc2626 !important;
+  background-color: #fef2f2 !important;
+}
+
+textarea.shares-textarea:user-valid,
+textarea.shares-textarea.user-valid-fallback {
+  border-color: #059669 !important;
+}
+

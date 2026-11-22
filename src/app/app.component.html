@@ -1,0 +1,423 @@
+<div class="min-h-screen bg-gray-50 text-gray-900 p-6 md:p-12 font-sans">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <header class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full text-blue-700 text-xs font-semibold uppercase tracking-wider mb-3 shadow-sm">
+        <span>🛡️ 100% Client-Side & Offline</span>
+      </div>
+      <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-3">
+        Shamir's Distributed Key Splitter
+      </h1>
+      <p class="text-gray-600 max-w-2xl mx-auto text-sm md:text-base">
+        Split critical private keys, passwords, or multi-megabyte files into <span class="text-blue-600 font-semibold">n</span> pieces. 
+        Any <span class="text-blue-600 font-semibold">m</span> pieces can reconstruct the secret, making any single chunk mathematically useless on its own.
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      
+      <!-- Split Card -->
+      <section class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <span>✂️</span> Split Secret
+          </h2>
+          <span class="text-xs bg-gray-100 text-gray-700 border border-gray-300 px-2.5 py-1 rounded-md font-mono font-medium">
+            {{ m }}-of-{{ n }} Scheme
+          </span>
+        </div>
+
+        <div class="space-y-5">
+          <div>
+            <div class="flex items-center justify-between mb-1.5 flex-wrap gap-2">
+              <label for="secret-input" class="block text-sm font-medium text-gray-700">
+                Secret Key / Text (or load a file)
+              </label>
+
+              <div class="flex items-center gap-2">
+                <!-- Load File Button for Multi-Megabyte Secrets -->
+                <input 
+                  #secretFileInput
+                  type="file" 
+                  class="hidden" 
+                  (change)="onSecretFileSelected($event)" 
+                />
+                <button 
+                  type="button"
+                  (click)="secretFileInput.click()" 
+                  class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 px-2.5 py-1 rounded-md transition font-medium"
+                >
+                  📁 Load Secret File
+                </button>
+
+                <!-- 5s Auto-Wipe Countdown Pill -->
+                <div *ngIf="secretCleanupCountdown !== null" class="inline-flex items-center gap-2 bg-amber-50 border border-amber-300 text-amber-800 px-2.5 py-0.5 rounded-full text-xs font-medium animate-pulse">
+                  <span>⏱️ Wiping secret in {{ secretCleanupCountdown }}s</span>
+                  <button 
+                    (click)="purgeSecretNow()" 
+                    class="underline font-semibold hover:text-amber-950 ml-1"
+                    title="Wipe immediately"
+                  >
+                    Wipe now
+                  </button>
+                </div>
+
+                <!-- Secret Purged Confirmation Pill -->
+                <div *ngIf="secretCleanupCountdown === null && secretCleanedMessage" class="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 px-2.5 py-0.5 rounded-full text-xs font-medium">
+                  <span>🧹 Secret wiped from memory & DOM</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Loaded File Badge -->
+            <div *ngIf="loadedSecretFileName" class="mb-2 p-2.5 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-between text-xs text-blue-900">
+              <span class="font-mono font-semibold truncate">📄 {{ loadedSecretFileName }}</span>
+              <button 
+                type="button"
+                (click)="clearLoadedSecretFile()" 
+                class="text-blue-700 hover:text-blue-950 underline font-medium ml-2"
+              >
+                Remove file
+              </button>
+            </div>
+
+            <textarea 
+              *ngIf="!loadedSecretFileName"
+              #secretInput
+              id="secret-input"
+              [(ngModel)]="secret" 
+              (ngModelChange)="onSecretInputChange()"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              data-lpignore="true"
+              data-form-type="other"
+              rows="3" 
+              placeholder="Paste your private key, seed phrase, master password, or click 'Load Secret File' for large multi-MB secrets..."
+              class="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm resize-y"
+            ></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="total-shares" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                Total Shares (n)
+              </label>
+              <input 
+                id="total-shares"
+                type="number" 
+                [(ngModel)]="n" 
+                min="2" 
+                max="255" 
+                class="w-full bg-white border border-gray-300 rounded-xl px-4 py-2.5 text-gray-900 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label for="threshold-shares" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                Threshold Needed (m)
+              </label>
+              <input 
+                id="threshold-shares"
+                type="number" 
+                [(ngModel)]="m" 
+                min="2" 
+                [max]="n" 
+                class="w-full bg-white border border-gray-300 rounded-xl px-4 py-2.5 text-gray-900 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+
+          <button 
+            (click)="splitSecret()" 
+            [disabled]="isSplitting"
+            class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-6 rounded-xl transition duration-150 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.99]"
+          >
+            <span *ngIf="!isSplitting">Generate Distributed Shares</span>
+            <span *ngIf="isSplitting">Splitting Secret... {{ splitProgress }}%</span>
+          </button>
+
+          <!-- Error Alert -->
+          <div *ngIf="splitError" class="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+            {{ splitError }}
+          </div>
+
+          <!-- Generated Shares Result -->
+          <div *ngIf="sharesList.length > 0" class="pt-5 border-t border-gray-200 space-y-4">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <h3 class="text-sm font-semibold text-gray-800 uppercase tracking-wider">
+                Generated Shares ({{ sharesList.length }})
+              </h3>
+              <div class="flex gap-2">
+                <button 
+                  (click)="downloadAllSharesFile()" 
+                  class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-md transition font-medium"
+                >
+                  ⬇️ Download All (.txt)
+                </button>
+                <button 
+                  (click)="clearAllData()" 
+                  class="text-xs bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-2.5 py-1 rounded-md transition font-medium"
+                  title="Revoke all QR codes and wipe shares from memory"
+                >
+                  Destroy All
+                </button>
+              </div>
+            </div>
+
+            <p class="text-xs text-gray-500">
+              Distribute these parts to separate physical locations or trusted parties. Any <strong class="text-blue-700 font-semibold">{{ m }}</strong> shares are required to recover. QR codes are generated on-demand per share and destroyed when this tab closes.
+            </p>
+
+            <div class="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+              <div 
+                *ngFor="let item of sharesList" 
+                class="bg-gray-50 border border-gray-200 rounded-xl p-3.5 transition hover:border-gray-300"
+              >
+                <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-xs font-bold font-mono">
+                      {{ item.id }}
+                    </span>
+                    <span class="text-xs font-semibold text-gray-700">Share #{{ item.id }}</span>
+                    <span class="text-xs text-gray-400 font-mono">({{ formatBytes(item.byteLength) }})</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <button 
+                      *ngIf="item.canGenerateQr"
+                      (click)="toggleQr(item)" 
+                      class="text-xs px-2.5 py-1 rounded-lg border border-gray-300 hover:bg-gray-100 text-gray-700 flex items-center gap-1 transition font-medium"
+                      [class.bg-blue-600]="item.showQr"
+                      [class.text-white]="item.showQr"
+                      [class.border-blue-600]="item.showQr"
+                    >
+                      <span>📷</span> {{ item.showQr ? 'Hide QR' : 'Generate QR' }}
+                    </button>
+                    <span 
+                      *ngIf="!item.canGenerateQr" 
+                      class="text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 rounded border border-gray-200"
+                      title="QR codes can store at most ~1.7 KB of binary data"
+                    >
+                      QR N/A (>1.7 KB)
+                    </span>
+                    <button 
+                      (click)="downloadShareFile(item)" 
+                      class="text-xs px-2.5 py-1 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 transition font-medium shadow-sm"
+                      title="Download share as file"
+                    >
+                      ⬇️ Save
+                    </button>
+                    <button 
+                      (click)="copyShare(item)" 
+                      class="text-xs px-2.5 py-1 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 text-gray-800 transition font-medium shadow-sm"
+                    >
+                      {{ copiedId === item.id ? '✓ Copied' : 'Copy' }}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Text value (truncated preview if multi-KB/MB so DOM stays fast) -->
+                <p class="font-mono text-xs text-gray-800 break-all select-all bg-white p-2.5 rounded-lg border border-gray-200">
+                  <span class="text-blue-600 font-bold">{{ item.id }}:</span> {{ item.previewValue }}
+                </p>
+
+                <!-- QR Error if any -->
+                <div *ngIf="item.qrError" class="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-xs">
+                  {{ item.qrError }}
+                </div>
+
+                <!-- On-Demand QR Code View -->
+                <div *ngIf="item.showQr && item.qrBlobUrl" class="mt-3 p-4 bg-white rounded-xl border border-gray-200 flex flex-col items-center justify-center shadow-sm">
+                  <img [src]="item.qrBlobUrl" alt="QR Code Share {{ item.id }}" class="w-40 h-40 object-contain rounded" />
+                  <span class="text-gray-600 text-xs font-mono font-medium mt-2">
+                    Share #{{ item.id }} ({{ m }}-of-{{ n }})
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recover Card -->
+      <section class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <span>🧩</span> Recover Secret
+          </h2>
+          <div class="flex items-center gap-2">
+            <span 
+              *ngIf="shareValidations.length > 0"
+              class="text-xs px-2.5 py-1 rounded-md font-mono font-semibold border"
+              [ngClass]="{
+                'bg-red-50 border-red-200 text-red-700': hasValidationErrors,
+                'bg-amber-50 border-amber-200 text-amber-800': !hasValidationErrors && validSharesCount < 2,
+                'bg-emerald-50 border-emerald-200 text-emerald-800': !hasValidationErrors && validSharesCount >= 2
+              }"
+            >
+              {{ validSharesCount }} valid {{ validSharesCount === 1 ? 'share' : 'shares' }}
+            </span>
+            <span class="text-xs bg-emerald-50 border border-emerald-200 text-emerald-800 px-2.5 py-1 rounded-md font-mono font-medium">
+              Combine Quorum
+            </span>
+          </div>
+        </div>
+
+        <div class="space-y-5">
+          <div>
+            <div class="flex items-center justify-between mb-1 flex-wrap gap-2">
+              <label for="shares-input" class="block text-sm font-medium text-gray-700">
+                Enter Shares (one per line or load share files)
+              </label>
+              <div>
+                <input 
+                  #shareFilesInput
+                  type="file" 
+                  multiple 
+                  class="hidden" 
+                  (change)="onShareFilesSelected($event)" 
+                />
+                <button 
+                  type="button"
+                  (click)="shareFilesInput.click()" 
+                  class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 px-2.5 py-1 rounded-md transition font-medium"
+                >
+                  📂 Load Share Files
+                </button>
+              </div>
+            </div>
+
+            <!-- Place format hints above the input so mobile keyboards or popovers don't obscure them -->
+            <p id="shares-format-hint" class="text-xs text-gray-500 mb-2">
+              Format: <code class="text-gray-700 bg-gray-100 px-1 py-0.5 rounded">id: Base64Share</code> or raw <code class="text-gray-700 bg-gray-100 px-1 py-0.5 rounded">Base64Share</code> (at least 2 distinct shares of equal length).
+            </p>
+
+            <!-- Loaded Share Files List -->
+            <div *ngIf="loadedShareFiles.length > 0" class="mb-2 space-y-1">
+              <div 
+                *ngFor="let sf of loadedShareFiles; let i = index" 
+                class="px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between text-xs text-emerald-900"
+              >
+                <span class="font-mono truncate">📄 {{ sf.name }} ({{ formatBytes(sf.content.length) }})</span>
+                <button 
+                  type="button"
+                  (click)="removeLoadedShareFile(i)" 
+                  class="text-emerald-700 hover:text-emerald-950 underline font-medium ml-2"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+
+            <textarea 
+              #sharesInputRef
+              id="shares-input"
+              [(ngModel)]="sharesInput" 
+              (ngModelChange)="onSharesInputChange()"
+              (blur)="onSharesInputBlur()"
+              [class.user-invalid-fallback]="sharesTouched && (hasValidationErrors || (shareValidations.length === 1 && validSharesCount < 2))"
+              [class.user-valid-fallback]="sharesTouched && !hasValidationErrors && validSharesCount >= 2"
+              aria-describedby="shares-format-hint"
+              aria-errormessage="shares-validation-feedback"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              rows="6" 
+              placeholder="Paste at least m shares here, one per line, or click 'Load Share Files' for multi-MB shares:&#10;1: K9f2...&#10;3: m8Qx..."
+              class="shares-textarea w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-mono text-xs resize-y transition-colors"
+            ></textarea>
+
+            <!-- Live Per-Line Share Diagnostics & Advice -->
+            <div 
+              *ngIf="shareValidations.length > 0" 
+              id="shares-validation-feedback"
+              aria-live="polite"
+              class="mt-3 space-y-2"
+            >
+              <!-- Global Advice Banner -->
+              <div 
+                *ngIf="globalShareAdvice" 
+                class="p-2.5 rounded-lg border text-xs flex items-start gap-2"
+                [ngClass]="hasValidationErrors ? 'bg-red-50 border-red-200 text-red-800' : 'bg-amber-50 border-amber-200 text-amber-800'"
+              >
+                <span aria-hidden="true">{{ hasValidationErrors ? '❌' : '💡' }}</span>
+                <span class="font-medium">{{ globalShareAdvice }}</span>
+              </div>
+
+              <!-- Per-line breakdown -->
+              <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                <div 
+                  *ngFor="let item of shareValidations" 
+                  class="p-2.5 rounded-lg border text-xs transition-colors"
+                  [ngClass]="{
+                    'bg-red-50/90 border-red-300 text-red-900': item.status === 'error',
+                    'bg-emerald-50/70 border-emerald-200 text-emerald-900': item.status === 'valid'
+                  }"
+                >
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="font-mono font-bold flex items-center gap-1.5">
+                      <span aria-hidden="true">{{ item.status === 'valid' ? '✓' : '⚠️' }}</span>
+                      {{ item.displayLabel }}
+                    </span>
+                    <span class="font-medium">{{ item.message }}</span>
+                  </div>
+                  <p *ngIf="item.advice" class="mt-1 text-red-700 bg-white/80 px-2 py-1 rounded border border-red-200/80">
+                    <strong>Advice:</strong> {{ item.advice }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button 
+            (click)="recoverSecret()" 
+            [disabled]="isRecovering || (shareValidations.length > 0 && hasValidationErrors)"
+            class="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl transition duration-150 flex items-center justify-center gap-2 shadow-md hover:shadow-lg active:scale-[0.99]"
+          >
+            <span *ngIf="!isRecovering">Reconstruct Secret</span>
+            <span *ngIf="isRecovering">Reconstructing... {{ recoverProgress }}%</span>
+          </button>
+
+          <!-- Recover Error -->
+          <div *ngIf="recoverError" class="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+            {{ recoverError }}
+          </div>
+
+          <!-- Recovered Result -->
+          <div *ngIf="recoveredSecret !== null" class="p-5 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <span class="text-xs font-semibold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
+                <span>✓</span> Reconstructed ({{ formatBytes(recoveredSecretBytesLength) }})
+              </span>
+              <div class="flex items-center gap-2">
+                <button 
+                  (click)="downloadRecoveredSecret()" 
+                  class="text-xs bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded-md font-medium shadow-sm"
+                >
+                  ⬇️ Download File
+                </button>
+                <button 
+                  (click)="copyRecoveredSecret()" 
+                  class="text-xs bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded-md font-medium shadow-sm"
+                >
+                  Copy
+                </button>
+                <button 
+                  (click)="recoveredSecret = null; recoveredSecretPreview = null; revokeRecoveredBlob(); sharesInput = ''; loadedShareFiles = []; onSharesInputChange()" 
+                  class="text-xs text-emerald-700 hover:text-emerald-950 underline font-medium ml-1"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+            <div class="bg-white p-3.5 rounded-lg border border-emerald-200 shadow-sm max-h-60 overflow-y-auto">
+              <p class="font-mono text-emerald-900 text-xs break-all select-all whitespace-pre-wrap">{{ recoveredSecretPreview }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>

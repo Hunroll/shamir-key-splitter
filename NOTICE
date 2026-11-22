@@ -1,0 +1,25 @@
+THIRD-PARTY NOTICES AND ATTRIBUTIONS
+
+This project (Shamir's Distributed Key Splitter) incorporates or maintains
+interoperability with the following open-source specifications and libraries:
+
+1. GF(2^8) Lookup Tables & Share Format Compatibility
+   - The GF(2^8) logarithm and exponentiation lookup tables (irreducible
+     polynomial x^8 + x^4 + x^3 + x + 1, generator 0xE5) and trailing-byte
+     X-coordinate share format in `src/app/shamir-fast.ts` are mathematically
+     defined for 100% binary interoperability with:
+     * HashiCorp Vault (`shamir/tables.go`) — https://github.com/hashicorp/vault
+       (Mozilla Public License 2.0 / BSL)
+     * Privy `shamir-secret-sharing` — https://github.com/privy-io/shamir-secret-sharing
+       (Apache License 2.0)
+
+2. Direct Runtime Dependencies
+   - Angular (`@angular/*`) — MIT License (https://angular.dev)
+   - `qrcode` (`node-qrcode`) — MIT License (https://github.com/soldair/node-qrcode)
+   - `rxjs` — Apache License 2.0 (https://rxjs.dev)
+   - `zone.js` — MIT License (https://github.com/angular/angular)
+   - `tslib` — 0BSD License (https://github.com/microsoft/tslib)
+
+A full machine-readable CycloneDX v1.6 Software Bill of Materials (SBOM)
+listing all components and licenses is available in `sbom.json` and
+`sbom.prod.json`.
