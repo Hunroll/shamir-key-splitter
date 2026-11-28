@@ -620,9 +620,10 @@ export class AppComponent implements OnDestroy {
 
       // Decode the last 4 Base64 characters to inspect the X-coordinate byte in O(1) time!
       let xCoord = 0;
+      let tailBytes: Uint8Array | null = null;
       try {
         const tailQuad = base64Part.slice(-4);
-        const tailBytes = this.base64ToUint8Array(tailQuad);
+        tailBytes = this.base64ToUint8Array(tailQuad);
         xCoord = tailBytes[tailBytes.byteLength - 1];
       } catch {
         results.push({
@@ -634,6 +635,10 @@ export class AppComponent implements OnDestroy {
           advice: 'Verify the copied share against the original output.'
         });
         continue;
+      } finally {
+        if (tailBytes) {
+          tailBytes.fill(0);
+        }
       }
 
       if (xCoord === 0) {
@@ -703,6 +708,10 @@ export class AppComponent implements OnDestroy {
       this.globalShareAdvice = `Please fix ${errCount} invalid share entry${errCount > 1 ? 's' : ''} highlighted below before reconstructing.`;
     } else {
       this.globalShareAdvice = null;
+    }
+
+    if (decodeBytes && (this.hasValidationErrors || validDecodedShares.length < 2)) {
+      validDecodedShares.forEach((s) => s.fill(0));
     }
 
     this.syncTextareaValidity();

@@ -3,9 +3,9 @@
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
   "version": 1,
-  "serialNumber": "urn:uuid:3af7675b-590e-4eb9-a593-959f1bf30e2d",
+  "serialNumber": "urn:uuid:35513b48-1b7b-4ce7-ba45-71997a4a76f1",
   "metadata": {
-    "timestamp": "2026-11-22T13:46:06.961Z",
+    "timestamp": "2026-11-28T10:15:45.354Z",
     "tools": {
       "components": [
         {
@@ -1378,57 +1378,6 @@
     },
     {
       "type": "library",
-      "name": "shamir-secret-sharing",
-      "version": "0.0.4",
-      "bom-ref": "frontend@1.0.0|shamir-secret-sharing@0.0.4",
-      "author": "privy.io",
-      "description": "Simple, independently audited, zero-dependency TypeScript implementation of Shamir's Secret Sharing algorithm",
-      "licenses": [
-        {
-          "license": {
-            "id": "Apache-2.0",
-            "acknowledgement": "declared"
-          }
-        }
-      ],
-      "purl": "pkg:npm/shamir-secret-sharing@0.0.4",
-      "externalReferences": [
-        {
-          "url": "git+https://github.com/privy-io/shamir-secret-sharing.git",
-          "type": "vcs",
-          "comment": "as detected from PackageJson property \"repository.url\""
-        },
-        {
-          "url": "https://github.com/privy-io/shamir-secret-sharing#readme",
-          "type": "website",
-          "comment": "as detected from PackageJson property \"homepage\""
-        },
-        {
-          "url": "https://github.com/privy-io/shamir-secret-sharing/issues",
-          "type": "issue-tracker",
-          "comment": "as detected from PackageJson property \"bugs.url\""
-        },
-        {
-          "url": "https://registry.npmjs.org/shamir-secret-sharing/-/shamir-secret-sharing-0.0.4.tgz",
-          "type": "distribution",
-          "hashes": [
-            {
-              "alg": "SHA-512",
-              "content": "ba2f2efdc220da3d7a6fda27fcb1f757f8252fac07770893a3f21a8f3ab1d124e7881bee3b397a55853186ba30df0685d1d820a2f25f6220594967d300de172d"
-            }
-          ],
-          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-        }
-      ],
-      "properties": [
-        {
-          "name": "cdx:npm:package:path",
-          "value": "node_modules/shamir-secret-sharing"
-        }
-      ]
-    },
-    {
-      "type": "library",
       "name": "tslib",
       "version": "2.9.1",
       "bom-ref": "frontend@1.0.0|tslib@2.9.1",
@@ -2445,7 +2394,6 @@
         "frontend@1.0.0|@angular/router@22.2.6",
         "frontend@1.0.0|qrcode@1.5.4",
         "frontend@1.0.0|rxjs@7.8.2",
-        "frontend@1.0.0|shamir-secret-sharing@0.0.4",
         "frontend@1.0.0|tslib@2.9.1",
         "frontend@1.0.0|zone.js@0.16.3"
       ]
@@ -2624,9 +2572,6 @@
       "dependsOn": [
         "frontend@1.0.0|tslib@2.9.1"
       ]
-    },
-    {
-      "ref": "frontend@1.0.0|shamir-secret-sharing@0.0.4"
     },
     {
       "ref": "frontend@1.0.0|tslib@2.9.1"
